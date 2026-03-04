@@ -1,5 +1,4 @@
 ---
-name: tdd/start
 description: 버그 수정이나 간단한 기능 추가를 위한 경량 TDD 워크플로우 (Red-Green-Refactor with human review)
 arguments:
   - name: task

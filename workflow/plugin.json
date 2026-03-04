@@ -1,6 +1,5 @@
 {
   "name": "workflow",
-  "version": "1.0.0",
   "description": "PR, code review, utilities, hooks, and reference skills",
   "author": {
     "name": "Seonghyeon Kim",

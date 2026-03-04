@@ -21,7 +21,10 @@
     "claude-md-management@claude-plugins-official": true,
     "claude-code-setup@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
-    "figma@claude-plugins-official": true
+    "figma@claude-plugins-official": true,
+    "workflow@devkit": true,
+    "design@devkit": true,
+    "tdd@devkit": true
   },
   "alwaysThinkingEnabled": true,
   "skipDangerousModePermissionPrompt": true

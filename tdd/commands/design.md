@@ -1,5 +1,4 @@
 ---
-name: tdd/design
 description: TechSpec의 테스트 케이스 기반으로 데이터 모델(interface), Usecase, Client Component를 설계
 allowed-tools:
   - Read

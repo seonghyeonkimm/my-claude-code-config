@@ -1,5 +1,4 @@
 ---
-name: design
 description: RADIO 프레임워크 기반 설계. 작업 규모에 따라 깊이를 조절하고, D step에서 비즈니스 제품은 DDD로, 기술 라이브러리는 Library Design으로 딥다이브한다
 arguments:
   - name: context
