@@ -7,6 +7,8 @@
 #
 # Replaces: typecheck/post-edit.sh
 
+echo "[code-quality] hook triggered" >&2
+
 if ! command -v jq >/dev/null 2>&1; then
   echo "[code-quality] jq is required but not installed" >&2
   exit 0
