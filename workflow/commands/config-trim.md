@@ -1,5 +1,4 @@
 ---
-name: config-trim
 description: 프로젝트의 AI 설정 파일(CLAUDE.md, agents, commands, rules 등)에서 중복·불필요 콘텐츠를 분석하고 제거
 allowed-tools:
   - Read
