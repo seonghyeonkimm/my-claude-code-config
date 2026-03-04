@@ -1,5 +1,12 @@
 ---
-description: 테스트 파일 생성 또는 위치 결정 시 적용
+name: test-file-location
+description: |
+  테스트 파일 위치 컨벤션 (Co-location / Flat).
+  Use when: 테스트 파일 생성, test file creation, 테스트 파일 위치 결정,
+  새 테스트 추가, __tests__ 디렉토리 여부 판단.
+globs:
+  - "**/*.test.{ts,tsx,js,jsx}"
+  - "**/*.spec.{ts,tsx,js,jsx}"
 ---
 
 # 테스트 파일 위치 컨벤션 (Flat / Co-location)

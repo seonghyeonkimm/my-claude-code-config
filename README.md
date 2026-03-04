@@ -64,6 +64,8 @@ Team members will be prompted to install the plugin when they trust the project 
 - **playwright-cli** — Browser automation reference
 - **code-dojo** — Interactive code learning
 - **skill-creator** — Skill generation guide
+- **test-case-design** — Test case deduplication rules
+- **test-file-location** — Test file co-location convention
 
 ### Agents
 
@@ -86,7 +88,7 @@ Team members will be prompted to install the plugin when they trust the project 
 
 ## Sync personal settings
 
-`rules/` are not distributed by the plugin system. Use `sync.sh` to sync personal rules to `~/.claude/rules/`:
+Use `sync.sh` to sync personal config (settings.json, statusline.sh) to `~/.claude/`:
 
 ```bash
 ./sync.sh export   # ~/.claude/ → repo
