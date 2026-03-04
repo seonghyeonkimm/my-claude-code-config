@@ -1,7 +1,7 @@
 {
-  "name": "devkit",
+  "name": "workflow",
   "version": "1.0.0",
-  "description": "Design commands, TDD pipeline, skills, agents, and hooks for Claude Code",
+  "description": "PR, code review, utilities, hooks, and reference skills",
   "author": {
     "name": "Seonghyeon Kim",
     "url": "https://github.com/seonghyeonkimm"

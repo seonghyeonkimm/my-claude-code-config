@@ -1,0 +1,9 @@
+{
+  "name": "design",
+  "version": "1.0.0",
+  "description": "RADIO framework design workflow with DDD and library design deep-dives",
+  "author": {
+    "name": "Seonghyeon Kim",
+    "url": "https://github.com/seonghyeonkimm"
+  }
+}

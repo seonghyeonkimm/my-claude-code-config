@@ -9,9 +9,19 @@
   },
   "plugins": [
     {
-      "name": "devkit",
-      "source": ".",
-      "description": "Design commands, TDD pipeline, skills, agents, and hooks for Claude Code"
+      "name": "tdd",
+      "source": "./tdd",
+      "description": "TDD pipeline — spec, design, issues, implement, sync, start (Red-Green-Refactor)"
+    },
+    {
+      "name": "design",
+      "source": "./design",
+      "description": "RADIO framework design workflow with DDD and library design deep-dives"
+    },
+    {
+      "name": "workflow",
+      "source": "./workflow",
+      "description": "PR, code review, utilities, hooks, and reference skills"
     }
   ]
 }
