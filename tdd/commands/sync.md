@@ -1,5 +1,4 @@
 ---
-name: tdd/sync
 description: 주어진 요구사항을 이해하고, tdd:* command로 생성된 문서들에 잘 반영되어 있는지 체크하고 누락분을 보고/반영
 arguments:
   - name: requirements

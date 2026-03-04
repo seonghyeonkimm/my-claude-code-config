@@ -1,5 +1,4 @@
 ---
-name: tdd/issues
 description: TechSpec과 Design 문서를 기반으로 Linear에 blocker/related issue를 분류하여 생성
 allowed-tools:
   - Read

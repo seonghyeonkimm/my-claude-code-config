@@ -1,5 +1,4 @@
 ---
-name: tdd/spec
 description: Linear 프로젝트에 FE TechSpec 문서를 생성하고 테스트 케이스까지 작성
 allowed-tools:
   - Read

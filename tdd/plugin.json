@@ -1,6 +1,5 @@
 {
   "name": "tdd",
-  "version": "1.0.0",
   "description": "TDD pipeline — spec, design, issues, implement, sync, start (Red-Green-Refactor)",
   "author": {
     "name": "Seonghyeon Kim",

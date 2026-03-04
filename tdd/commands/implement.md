@@ -1,5 +1,4 @@
 ---
-name: tdd/implement
 description: spec/design/issues 기반으로 단일 Task에 Red→Green→Refactor 전체 워크플로우를 포함하여 생성. Workspace가 자체적으로 phase를 순차 실행하며, 각 phase 사이에 인간 리뷰를 거침
 allowed-tools:
   - Read
