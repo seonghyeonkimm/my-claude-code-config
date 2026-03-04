@@ -1,5 +1,12 @@
 ---
-description: 테스트 케이스 설계 시 적용
+name: test-case-design
+description: |
+  테스트 케이스 중복 방지 및 경계 조건 설계 규칙.
+  Use when: 테스트 케이스 작성, test case design, 테스트 설계,
+  Given/When/Then 작성, 테스트 코드 리뷰 시 중복 케이스 판단.
+globs:
+  - "**/*.test.{ts,tsx,js,jsx}"
+  - "**/*.spec.{ts,tsx,js,jsx}"
 ---
 
 # 테스트 케이스 중복 방지

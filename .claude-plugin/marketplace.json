@@ -1,0 +1,27 @@
+{
+  "name": "devkit",
+  "owner": {
+    "name": "Seonghyeon Kim",
+    "email": "seonghyeonkimm@users.noreply.github.com"
+  },
+  "metadata": {
+    "description": "Design commands, TDD pipeline, skills, agents, and hooks"
+  },
+  "plugins": [
+    {
+      "name": "tdd",
+      "source": "./tdd",
+      "description": "TDD pipeline — spec, design, issues, implement, sync, start (Red-Green-Refactor)"
+    },
+    {
+      "name": "design",
+      "source": "./design",
+      "description": "RADIO framework design workflow with DDD and library design deep-dives"
+    },
+    {
+      "name": "workflow",
+      "source": "./workflow",
+      "description": "PR, code review, utilities, hooks, and reference skills"
+    }
+  ]
+}

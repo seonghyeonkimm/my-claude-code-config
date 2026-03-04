@@ -28,7 +28,7 @@
 # - Plan has been finalized
 
 # Track tool call count (increment in a temp file)
-COUNTER_FILE="/tmp/claude-tool-count-$$"
+COUNTER_FILE="/tmp/claude-tool-count-${PPID}"
 THRESHOLD=${COMPACT_THRESHOLD:-50}
 
 # Initialize or increment counter

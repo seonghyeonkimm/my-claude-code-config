@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "terminal-notifier -message \"Claude code has stopped.\" -title \"Status Alert\""
+            "command": "command -v terminal-notifier >/dev/null 2>&1 && terminal-notifier -message \"Claude code has stopped.\" -title \"Status Alert\" || true"
           }
         ]
       },
@@ -23,7 +23,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "terminal-notifier -message \"Claude code needs your attention.\" -title \"Status Alert\""
+            "command": "command -v terminal-notifier >/dev/null 2>&1 && terminal-notifier -message \"Claude code needs your attention.\" -title \"Status Alert\" || true"
           }
         ]
       }

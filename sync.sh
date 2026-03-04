@@ -1,8 +1,9 @@
 #!/bin/bash
 # sync.sh - Sync personal settings between ~/.claude and plugin repository
 #
-# Marketplace가 commands, skills, agents, rules, hooks를 관리하므로
-# 이 스크립트는 marketplace 범위 밖의 개인 설정만 동기화합니다.
+# Marketplace가 commands, skills, agents, hooks를 관리하므로
+# 이 스크립트는 marketplace 범위 밖의 개인 설정을 동기화합니다.
+# - config/: settings.json, statusline.sh
 #
 # Usage:
 #   ./sync.sh export   # ~/.claude/ -> repo (capture local changes)
@@ -48,7 +49,6 @@ do_export() {
 
   echo ""
   log_info "Export complete. Review changes with: git diff"
-  log_info "Note: commands, skills, agents, rules, hooks are managed by marketplace."
 }
 
 do_import() {
@@ -75,7 +75,6 @@ do_import() {
 
   echo ""
   log_info "Import complete. Restart Claude Code to apply changes."
-  log_info "Note: commands, skills, agents, rules, hooks are managed by marketplace."
 }
 
 do_diff() {
@@ -109,7 +108,6 @@ do_diff() {
   else
     log_ok "All personal settings are in sync."
   fi
-  log_info "Note: commands, skills, agents, rules, hooks are managed by marketplace."
 }
 
 case "${1:-}" in
@@ -129,7 +127,7 @@ case "${1:-}" in
     echo "  import  Apply repo personal settings to ~/.claude (with backup)"
     echo "  diff    Show differences between local and repo"
     echo ""
-    echo "Note: commands, skills, agents, rules, hooks are managed by marketplace."
+    echo "Syncs: config/ (settings.json, statusline.sh)"
     exit 1
     ;;
 esac

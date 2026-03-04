@@ -24,7 +24,7 @@ allowed-tools:
 
 ### Step 0: GitHub 계정 확인 (gh auth)
 
-`~/.claude/rules/gh-auth.md`의 "gh 명령어 실행 전 필수 확인" 절차를 따른다.
+`gh auth status`로 현재 인증 상태를 확인하고, 대상 리포지토리에 접근 가능한 계정을 찾아 필요하면 `gh auth switch`로 전환한 뒤 다음 작업을 진행한다.
 
 ### Step 1: 상태 확인
 1. `git status`로 변경사항 확인
