@@ -1,0 +1,9 @@
+{
+  "name": "my-claude-code-config",
+  "version": "1.0.0",
+  "description": "Personal Claude Code workflows - design commands, TDD, skills, hooks",
+  "author": {
+    "name": "Seonghyeon Kim",
+    "url": "https://github.com/seonghyeonkimm"
+  }
+}
