@@ -1,5 +1,4 @@
 ---
-name: wrap
 description: 대화에서 발견한 패턴을 시스템에 반영
 allowed-tools:
   - Read

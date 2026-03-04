@@ -1,5 +1,4 @@
 ---
-name: think
 description: Self Consistency 기법으로 3개의 독립적 접근을 병렬 생성하고 비교하여 최선의 방안을 추천합니다
 arguments:
   - name: task

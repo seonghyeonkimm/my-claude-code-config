@@ -1,5 +1,4 @@
 ---
-name: paper
 description: 논문 탐색 → 목차/요약 제공 → Q&A 학습 → 학습 노트 저장까지 대화형 논문 학습 워크플로우
 arguments:
   - name: context
