@@ -1,7 +1,7 @@
 {
-  "name": "my-claude-code-config",
+  "name": "devkit",
   "version": "1.0.0",
-  "description": "Personal Claude Code workflows - design commands, TDD, skills, hooks",
+  "description": "Design commands, TDD pipeline, skills, agents, and hooks for Claude Code",
   "author": {
     "name": "Seonghyeon Kim",
     "url": "https://github.com/seonghyeonkimm"

@@ -1,13 +1,37 @@
-# my-claude-code-config
+# devkit
 
-Personal Claude Code workflows — design commands, TDD pipeline, skills, and hooks.
+Design commands, TDD pipeline, skills, agents, and hooks for Claude Code.
 
 ## Install
 
+### Personal (user scope)
+
 ```bash
-# Via Claude Code CLI
-/install github:seonghyeonkimm/my-claude-code-config
+/plugin marketplace add seonghyeonkimm/my-claude-code-config
+/plugin install devkit@devkit
 ```
+
+### Team project
+
+Add to your project's `.claude/settings.json`:
+
+```jsonc
+{
+  "extraKnownMarketplaces": {
+    "devkit": {
+      "source": {
+        "source": "github",
+        "repo": "seonghyeonkimm/my-claude-code-config"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "devkit@devkit": true
+  }
+}
+```
+
+Team members will be prompted to install the plugin when they trust the project folder.
 
 ## What's included
 
@@ -59,6 +83,16 @@ Personal Claude Code workflows — design commands, TDD pipeline, skills, and ho
 - **PreCompact** — Memory snapshot before compaction
 - **PreToolUse (Edit|Write)** — Strategic compact suggestion
 - **PostToolUse (Edit|Write)** — Code quality check (Biome + TypeScript)
+
+## Sync personal settings
+
+`rules/` are not distributed by the plugin system. Use `sync.sh` to sync personal rules to `~/.claude/rules/`:
+
+```bash
+./sync.sh export   # ~/.claude/ → repo
+./sync.sh import   # repo → ~/.claude/
+./sync.sh diff     # compare
+```
 
 ## License
 

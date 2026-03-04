@@ -1,0 +1,17 @@
+{
+  "name": "devkit",
+  "owner": {
+    "name": "Seonghyeon Kim",
+    "email": "seonghyeonkimm@users.noreply.github.com"
+  },
+  "metadata": {
+    "description": "Design commands, TDD pipeline, skills, agents, and hooks"
+  },
+  "plugins": [
+    {
+      "name": "devkit",
+      "source": ".",
+      "description": "Design commands, TDD pipeline, skills, agents, and hooks for Claude Code"
+    }
+  ]
+}
