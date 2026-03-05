@@ -90,6 +90,9 @@ visual_verification:
   story_files: []
   iterations: 0
   status: null  # skipped | completed | partial
+  browser_check: null             # null | skipped | completed
+  browser_iterations: 0           # ralph-loop 반복 횟수
+  browser_checklist_passed: null  # "통과/전체" (예: "3/4"), Phase 7.5에서 기록
 created_at: "2026-02-11T10:00:00Z"
 updated_at: "2026-02-11T10:00:00Z"
 ```
@@ -412,6 +415,105 @@ AskUserQuestion:
 
 3. **세션 상태 업데이트**: phase → "refactor", pr 정보, commits.refactor 기록
 
+### Phase 7.5: Browser Verification — ralph-loop으로 반복 확인
+
+> **frontend 파일(.tsx, .jsx, .css, .scss 등)이 변경된 경우 반드시 실행한다.**
+> backend만 변경된 경우 건너뜀.
+
+1. **frontend 변경 여부 확인**:
+   - source_files 중 `.tsx`, `.jsx`, `.css`, `.scss`, `.less`, `.sass`, `.svelte`, `.vue` 확장자 확인
+   - 없으면 Phase 8로 건너뜀
+
+2. **dev server URL 확보**:
+   - dev server URL을 모르면 AskUserQuestion:
+     ```
+     question: "Browser Verification을 위해 dev server URL을 입력해주세요.
+     예: http://localhost:3000, http://localhost:5173
+
+     dev server가 이미 실행 중이어야 합니다."
+     ```
+
+3. **검증 체크리스트 작성**:
+   변경된 TC와 source_files를 기반으로 검증 항목을 도출한다:
+
+   ```
+   ## Browser Verification Checklist
+   - [ ] 페이지 렌더링: 변경된 페이지가 에러 없이 렌더링되는가?
+   - [ ] 시각적 확인: 레이아웃, 색상, 타이포그래피가 정상인가?
+   - [ ] 인터랙션: 주요 사용자 흐름(클릭, 입력, 네비게이션)이 동작하는가?
+   - [ ] 엣지 케이스: 빈 상태, 에러 상태, 로딩 상태가 정상 표시되는가?
+   ```
+   - TC에서 UI 관련 항목을 추출하여 체크리스트에 추가
+   - 최소 3개 이상의 항목이 되도록 구성
+
+4. **playwright-cli 브라우저 열기**:
+   ```bash
+   playwright-cli open {dev_url}
+   ```
+
+5. **ralph-loop 시작**:
+   ```
+   Skill(skill: "ralph-loop:ralph-loop", args: "--max-iterations 5 --completion-promise BROWSER_VERIFIED")
+   ```
+
+   **각 iteration에서 수행할 작업:**
+
+   a. 변경된 기능 페이지로 이동:
+      ```bash
+      playwright-cli goto {page_url}
+      ```
+
+   b. 스크린샷 캡처:
+      ```bash
+      playwright-cli screenshot --filename=.claude/screenshots/browser-verify-{iteration}.png
+      ```
+
+   c. 체크리스트 항목 검증:
+      - playwright-cli snapshot으로 DOM 구조 확인
+      - playwright-cli click, fill 등으로 인터랙션 테스트
+      - console 에러 확인 (playwright-cli console)
+
+   d. 결과 판정:
+      - **체크리스트 전체 통과** → `<promise>BROWSER_VERIFIED</promise>` 출력
+      - **문제 발견** → 즉시 수정 → 테스트 재실행 → 다음 iteration에서 재확인
+      - **수정 불가** → 이슈 기록 후 다음 iteration
+
+   **주의**: 모든 체크리스트 항목을 한 번 이상 확인하기 전에는 promise를 출력하지 않는다.
+
+6. **결과 보고** (ralph-loop 종료 후):
+   ```
+   AskUserQuestion:
+     question: "🌐 Browser Verification 완료.
+
+     확인 URL: {page_url}
+     ralph-loop: {N}회 반복
+
+     체크리스트 결과:
+     - [x] 페이지 렌더링: 정상
+     - [x] 시각적 확인: 정상
+     - [x] 인터랙션: 정상
+     - [ ] 엣지 케이스: {미확인 항목} (해당 시)
+
+     스크린샷: .claude/screenshots/browser-verify-*.png
+
+     수정 사항: (해당 시)
+     - {iteration N에서 발견하여 수정한 내용}
+
+     선택: 진행 (최종 보고로) / 추가 확인 요청 / 수정 요청"
+   ```
+
+   - **추가 확인 요청** 시 → ralph-loop 재시작 (사용자 지정 항목 추가)
+   - **수정 요청** 시 → 수정 → 테스트 → 커밋 → ralph-loop 재시작
+   - **진행** 시 → Phase 8로
+
+7. **세션 상태 업데이트**:
+   ```yaml
+   visual_verification:
+     browser_check: completed  # null | skipped | completed
+     browser_iterations: {N}
+     browser_checklist_passed: {통과}/{전체}
+   ```
+
 ### Phase 8: 최종 보고
 
 세션 상태 파일에서 정보를 읽어 최종 보고를 작성한다:
@@ -443,6 +545,12 @@ AskUserQuestion:
 ### Refactor Phase
 - 리팩토링: {items or "건너뛰기됨"}
 - 커밋: {commit hash} (해당 시)
+
+### Browser Verification
+- 상태: {완료/건너뜀}
+- ralph-loop: {N}회 반복 (해당 시)
+- 체크리스트: {통과}/{전체} (해당 시)
+- 스크린샷: .claude/screenshots/browser-verify-*.png (해당 시)
 
 ### 최종 검증
 - 타입 체크: 통과/해당없음
