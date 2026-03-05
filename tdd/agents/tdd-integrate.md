@@ -116,6 +116,10 @@ AskUserQuestion:
 
 위 모든 방법으로 해결 안 되는 경우에만 AskUserQuestion으로 사용자에게 확인 요청.
 
+> **필수**: frontend 파일(.tsx, .jsx, .css, .scss 등)이 변경된 경우, **3. 브라우저 검증은 선택이 아니라 필수**다.
+> 매 iteration마다 `playwright-cli screenshot`으로 실제 화면을 캡처하고, 시각적/인터랙션 동작을 확인해야 한다.
+> 코드 레벨 검증이나 테스트 실행만으로 QA_PASSED를 출력하지 않는다.
+
 #### b. 결과 판정
 
 - 모든 기준 통과 → `<promise>QA_PASSED</promise>` 출력하여 ralph-loop 종료

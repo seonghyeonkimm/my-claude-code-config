@@ -23,8 +23,7 @@ Workspace 내부 흐름:
 Red      → 테스트 작성 & commit                        → 🔍 Review Gate 1: 인간 리뷰
 Green    → 구현 코드 commit                           → 🔍 Review Gate 2: 인간 리뷰
 Visual   → Figma 비교 & Storybook/Preview (Figma URL 있을 시) → 🔍 Review Gate 2.5: 인간 리뷰
-Refactor → 리팩토링 commit & push → Draft PR 생성 → Linear 동기화
-Browser  → ralph-loop 브라우저 검증 (frontend 변경 시)    → 🔍 Review Gate 3: 최종 리뷰
+Refactor → 리팩토링 commit & push → Draft PR 생성 → Linear 동기화 → 🔍 Review Gate 3: 최종 리뷰
 최종 승인 → Draft PR → Ready for Review (open)
 ```
 
@@ -374,47 +373,6 @@ Task(subagent_type: "tdd-refactor", prompt: "
 ")
 ```
 
----
-
-## Step 3.5: 🌐 BROWSER VERIFICATION — ralph-loop으로 반복 확인
-
-> **frontend 파일(.tsx, .jsx, .css, .scss 등)이 변경된 경우 반드시 실행한다.**
-> backend만 변경된 경우 Review Gate 3으로 건너뜀.
-
-1. **frontend 변경 여부 확인**:
-   - Step 2-3에서 변경된 파일 중 `.tsx`, `.jsx`, `.css`, `.scss`, `.less`, `.sass`, `.svelte`, `.vue` 확장자 확인
-   - 없으면 Review Gate 3으로 건너뜀
-
-2. **검증 체크리스트 작성**:
-   관련 TC와 변경 파일을 기반으로 체크리스트 도출 (최소 3항목):
-   - 페이지 렌더링: 변경된 페이지가 에러 없이 렌더링되는가?
-   - 시각적 확인: 레이아웃, 색상, 타이포그래피가 정상인가?
-   - 인터랙션: 주요 사용자 흐름(클릭, 입력, 네비게이션)이 동작하는가?
-   - 엣지 케이스: 빈 상태, 에러 상태, 로딩 상태가 정상 표시되는가?
-   - TC에서 UI 관련 항목을 추출하여 체크리스트에 추가
-
-3. **playwright-cli 브라우저 열기**:
-   - dev server URL을 모르면 먼저 AskUserQuestion으로 질문
-   ```bash
-   playwright-cli open {dev_url}
-   ```
-
-4. **ralph-loop 시작**:
-   ```
-   Skill(skill: "ralph-loop:ralph-loop", args: "--max-iterations 5 --completion-promise BROWSER_VERIFIED")
-   ```
-
-   각 iteration에서:
-   a. `playwright-cli goto {page_url}` → `playwright-cli screenshot --filename=.claude/screenshots/browser-verify-{iteration}.png`
-   b. 체크리스트 항목 검증 (snapshot, click, fill, console 확인)
-   c. 전체 통과 시 `<promise>BROWSER_VERIFIED</promise>`, 미통과 시 수정 후 다음 iteration
-
-   **모든 체크리스트 항목을 한 번 이상 확인하기 전에는 promise를 출력하지 않는다.**
-
-5. **결과를 Review Gate 3에 포함**
-
----
-
 ### 🔍 Review Gate 3
 
 agent 완료 후, **반드시 여기서 멈추고 AskUserQuestion으로 인간에게 최종 리뷰를 요청하세요.**
@@ -427,8 +385,6 @@ AskUserQuestion:
   tsc: ✅ 통과
   biome: ✅ 통과
   테스트: {통과}/{전체}
-  Browser Verification: ralph-loop {N}회 / 체크리스트 {통과}/{전체} / {확인 URL}
-  (또는: 건너뜀 — frontend 변경 없음)
 
   선택: 승인 (PR을 Ready for Review로 전환) / 수정 요청"
 ```
