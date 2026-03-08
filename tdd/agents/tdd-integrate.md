@@ -74,15 +74,7 @@ AskUserQuestion:
 
 QA 전 기본 전제조건을 확인한다:
 
-```bash
-# 1. 빌드 가능한지
-npx tsc --noEmit
-
-# 2. 전체 테스트 통과하는지
-npx vitest run  # 또는 프로젝트 테스트 커맨드
-
-# 3. dev server 실행 확인 (브라우저 검증이 필요한 경우)
-```
+프로젝트 빌드 & 전체 테스트 통과 확인 (tdd-refactor의 pre-commit 체크와 동일). 브라우저 검증 필요 시 dev server 실행 확인.
 
 빌드/테스트 실패 시 → 수정 가능하면 바로 수정, 수정 불가하면 Follow-up Action으로 기록하고 나머지 검증 계속 진행.
 
@@ -92,77 +84,45 @@ npx vitest run  # 또는 프로젝트 테스트 커맨드
 Skill(skill: "ralph-loop:ralph-loop", args: "--max-iterations 5 --completion-promise QA_PASSED")
 ```
 
-ralph-loop 실행 실패 시 AskUserQuestion:
-```
-AskUserQuestion:
-  question: "ralph-loop 실행에 실패했습니다. (사유: {에러 메시지})
-
-  선택: 재시도 / 건너뛰기 (수동 QA Report 작성)"
-```
+ralph-loop 실행 실패 시 AskUserQuestion으로 재시도/건너뛰기 선택.
 
 ### 각 iteration에서:
 
 #### a. 평가기준 항목별 검증
 
-**자율 검증 우선, 사용자 질문은 최후 수단.**
+**자율 검증 우선, 사용자 질문은 최후 수단.** 검증 전략 (우선순위 순):
+1. **코드 레벨 검증**: Grep/Read로 데이터 흐름 추적, import 연결, 조건 분기 확인
+2. **테스트 실행**: 기존 테스트 + 필요 시 통합 테스트 추가
+3. **브라우저 검증**: playwright-cli로 실제 동작 확인
+4. **로그/디버깅**: console.log + 에러 메시지 분석
+5. **코드 트레이싱**: 함수 호출 체인 추적
 
-검증 전략 (우선순위 순):
-
-1. **코드 레벨 검증**: Grep/Read로 데이터 흐름 추적, import 연결 확인, 조건 분기 확인
-2. **테스트 실행**: 기존 테스트 + 필요 시 통합 테스트 추가 작성하여 실행
-3. **브라우저 검증**: playwright-cli로 실제 동작 확인 (스크린샷, 클릭, 폼 입력 등)
-4. **로그/디버깅**: console.log 추가 후 테스트 실행, 에러 메시지 분석
-5. **코드 트레이싱**: 함수 호출 체인을 수동으로 따라가며 논리적 검증
-
-위 모든 방법으로 해결 안 되는 경우에만 AskUserQuestion으로 사용자에게 확인 요청.
-
-> **필수**: frontend 파일(.tsx, .jsx, .css, .scss 등)이 변경된 경우, **3. 브라우저 검증은 선택이 아니라 필수**다.
-> 매 iteration마다 `playwright-cli screenshot`으로 실제 화면을 캡처하고, 시각적/인터랙션 동작을 확인해야 한다.
-> 코드 레벨 검증이나 테스트 실행만으로 QA_PASSED를 출력하지 않는다.
+> **필수**: frontend 파일(.tsx, .jsx, .css, .scss 등) 변경 시 **브라우저 검증은 필수**. 매 iteration마다 `playwright-cli screenshot`으로 확인.
 
 #### b. 결과 판정 + Eval Scoring
 
-`tdd-eval` skill의 `references/integrate.md` rubric을 참조하여 eval_result를 산출한다:
+`tdd-eval` skill의 `references/integrate.md` rubric 참조. 채점 항목:
+- AC 기준 통과율 (30점), TC 시나리오 통과율 (30점), 검증 깊이 Likert (20점), 수정 안전성 (20점)
 
-- AC 기준 통과율: `30 × (통과 AC / 전체 AC)`
-- TC 시나리오 통과율: `30 × (통과 TC / 전체 TC)`
-- 검증 깊이: `4 × Likert(0-5)` — 코드 트레이싱뿐 아니라 실제 테스트 실행·브라우저 확인까지 했는가?
-- 수정 안전성: `20 × (수정 후 테스트 통과 / 수정 후 전체 테스트)` (수정 없으면 20)
+`total >= 80` AND 모든 AC/TC 통과 → `<promise>QA_PASSED</promise>`. 미달 시 낮은 dimension 개선.
+실패 항목이 새 구현 필요 수준 → Follow-up Action으로 보고.
 
-**판정:**
-- total >= 80 AND 모든 AC/TC 통과 → `<promise>QA_PASSED</promise>` 출력하여 ralph-loop 종료
-- total < 80 → 낮은 dimension 집중 개선 후 다음 iteration
-- 실패 항목이 새 구현이 필요한 수준 → MISSING으로 기록, Follow-up Action으로 보고
+#### c. 수정 가능 범위
 
-#### c. 수정 가능 범위 (작은 누락/연결 문제)
+Props 전달 누락, 조건 분기 빠짐, 에러 핸들링 누락, 스타일 미세 조정, barrel file re-export 누락, import 경로 오류.
+수정 후 반드시 테스트 재실행.
 
-- Props 전달 누락 → 연결
-- 조건 분기 빠짐 → 추가
-- 에러 핸들링 누락 → 추가
-- 스타일/레이아웃 미세 조정
-- barrel file(index.ts) re-export 누락 → 추가
-- import 경로 오류 → 수정
+#### d. 수정 불가 범위
 
-수정 후 반드시 테스트 재실행하여 기존 테스트가 깨지지 않는지 확인한다.
-
-#### d. 수정 불가 범위 (새 구현 필요)
-
-- 설계된 컴포넌트가 아예 없음
-- 새로운 API 연동 필요
-- 주요 로직 재작성 필요
-→ Follow-up Issue로 분류하고, 나머지 항목 검증은 계속 진행
+설계된 컴포넌트 부재, 새 API 연동 필요, 주요 로직 재작성 → Follow-up Issue로 분류, 나머지 검증 계속.
 
 ### 수렴 조건
 
-- `<promise>QA_PASSED</promise>` 출력 시 ralph-loop 자동 종료
-- 최대 5회 반복 도달 시 자동 종료, 통과/실패 현황과 함께 보고
+`<promise>QA_PASSED</promise>` 출력 시 자동 종료. 최대 5회 반복.
 
 ## Step 4: 커밋 (수정 사항이 있는 경우)
 
-```bash
-git add {changed-files}
-git commit -m "fix: integration QA - {수정 요약}"
-```
+커밋: `fix: integration QA - {수정 요약}`
 
 ## Output Contract
 

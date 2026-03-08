@@ -103,68 +103,30 @@ ToolSearch(query: "select:mcp__claude_ai_Figma__get_screenshot")
 
 ### 3. ralph-loop 반복 비교 & 수정
 
-playwright-cli로 Preview URL을 브라우저에서 열어둔다:
+playwright-cli로 Preview URL을 브라우저에서 열고 ralph-loop을 시작한다:
 ```bash
 playwright-cli open "{storybook_story_url 또는 preview_page_url}"
 ```
-
-ralph-loop을 시작한다:
 ```
 Skill(skill: "ralph-loop:ralph-loop", args: "--max-iterations 5 --completion-promise VISUAL_MATCH")
 ```
 
-ralph-loop 실행이 실패하면 AskUserQuestion으로 사용자에게 확인:
-```
-AskUserQuestion:
-  question: "ralph-loop 실행에 실패했습니다. (사유: {에러 메시지})
+ralph-loop 실행 실패 시 AskUserQuestion으로 재시도/건너뛰기 선택.
 
-  선택: 재시도 / 건너뛰기 (Visual Verification 종료)"
-```
+각 iteration에서:
 
-ralph-loop 프롬프트 — 각 iteration에서:
+a. **Figma 디자인 캡처**: `get_screenshot`으로 Figma 인라인 이미지 획득
+b. **구현 스크린샷 캡처**: `playwright-cli screenshot` → `Read`로 LLM 멀티모달 확인
+c. **비교 분석 + Eval**: `tdd-eval` skill의 `references/visual.md` rubric 참조. 4개 dimension Likert(0-5) 채점:
+   - 레이아웃, 색상, 타이포그래피, 간격 (만점 100 = 각 25점)
+d. `total >= 80` → `<promise>VISUAL_MATCH</promise>` 출력
+e. `total < 80` → Likert 3 이하 dimension 집중 수정 → Green 유지 확인 → 다음 iteration
 
-a. **Figma 디자인 캡처**:
-   ```
-   ToolSearch(query: "select:mcp__claude_ai_Figma__get_screenshot")
-   → mcp__claude_ai_Figma__get_screenshot(fileKey: "{key}", nodeId: "{id}")
-   ```
-   Figma MCP가 인라인 이미지를 반환한다.
-
-b. **구현 스크린샷 캡처**:
-   ```bash
-   playwright-cli screenshot --filename=.claude/screenshots/visual-impl.png
-   ```
-   ```
-   Read(".claude/screenshots/visual-impl.png")
-   ```
-   playwright-cli로 캡처한 파일을 Read로 열어 LLM 멀티모달로 확인한다.
-
-c. **Figma vs 구현 비교 분석 + Eval Scoring**:
-   위 두 이미지를 LLM 멀티모달로 비교하고, `tdd-eval` skill의 `references/visual.md` rubric을 참조하여 4개 dimension을 Likert(0-5) 채점한다:
-   - 레이아웃 (배치, 정렬, 크기): Likert {0-5}
-   - 색상 (배경, 텍스트, 보더): Likert {0-5}
-   - 타이포그래피 (폰트, 사이즈, weight): Likert {0-5}
-   - 간격 (padding, margin, gap): Likert {0-5}
-
-   eval_result 산출: `total = 각 dimension의 5 × Likert` 합산 (만점 100)
-
-d. **total >= 80 (모든 dimension Likert 4+)** → `<promise>VISUAL_MATCH</promise>` 출력하여 ralph-loop 종료
-
-e. **total < 80 (Likert 3 이하 dimension 존재)**:
-   1. Likert 3 이하인 dimension만 집중 수정 (CSS/스타일, 레이아웃, 디자인 토큰)
-   2. 테스트 실행 → Green 유지 확인 (깨지면 수정 revert 후 다른 방법 시도)
-   3. 다음 iteration으로 진행
-
-**수렴 조건:**
-- `<promise>VISUAL_MATCH</promise>` 출력 시 ralph-loop 자동 종료
-- 최대 5회 반복 도달 시 자동 종료, 잔여 차이 목록 + eval 점수와 함께 보고
+최대 5회 반복. 종료 시 잔여 차이 목록 + eval 점수 보고.
 
 ### 4. 커밋
 
-```bash
-git add {changed-files} {story-or-preview-files}
-git commit -m "style: visual verification - match Figma design for {component}"
-```
+커밋: `style: visual verification - match Figma design for {component}`
 
 ## Output
 

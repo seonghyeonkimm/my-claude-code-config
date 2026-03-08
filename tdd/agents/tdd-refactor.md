@@ -56,11 +56,7 @@ npx vitest run  # 또는 npx jest, pytest 등
 
 ### 3. 커밋 & 푸시
 
-```bash
-git add {changed-files}
-git commit -m "refactor: improve code quality for {task summary}"
-git push -u origin {branch_name}
-```
+커밋: `refactor: improve code quality for {task summary}` 후 `git push -u origin {branch_name}`
 
 ### 4. Draft PR 생성
 

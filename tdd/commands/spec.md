@@ -77,7 +77,7 @@ ToolSearch로 MCP 도구를 로드한 뒤 컨텍스트를 수집한다.
 4. **Non-Functional Requirements**: 해당되는 경우에만 작성 (Performance, A11y, SEO)
 5. **Functional Requirements (Given/When/Then)**:
    - ⚠️ Entity/Command 헤더 없이 테이블만 작성
-   - 정상 → 에러 → 엣지 케이스 순서로 테스트 케이스 테이블 작성
+   - `test-case-design` 스킬의 규칙을 따른다
 
 ### Phase 3.5: AC ↔ TC 추적성 검증
 
@@ -95,17 +95,8 @@ ToolSearch로 MCP 도구를 로드한 뒤 컨텍스트를 수집한다.
 Skill(skill: "ralph-loop:ralph-loop", args: "--max-iterations 3 --completion-promise EVAL_PASSED_SPEC")
 ```
 
-각 iteration:
-
-1. **카운팅 채점**:
-   - AC Completeness: Solution 항목 → AC 텍스트 매칭
-   - TC Coverage: AC별 Given/When/Then 행 존재 여부
-   - Boundary Coverage: When 기준 그룹핑 → 정상/에러/엣지 타입 태깅
-   - TC Specificity: vague 패턴 ("표시된다", "보인다" 등 구체적 값 없는 Then) grep
-2. **LLM 정성 평가**: TC 의도 명확성 Likert(0-5) — 각 TC가 하나의 행동만 검증하는가?
-3. **eval_result 산출** (YAML 형식으로 내부 기록)
-4. `total >= 80` → `<promise>EVAL_PASSED_SPEC</promise>` 출력
-5. `total < 80` → `failing_dimensions.gap` 기반으로 TechSpec 수정 → 다음 iteration
+채점 항목: AC Completeness, TC Coverage, Boundary Coverage, TC Specificity, TC 의도 명확성 Likert(0-5).
+`total >= 80` → `<promise>EVAL_PASSED_SPEC</promise>` 출력. 미달 시 수정 후 다음 iteration.
 
 ralph-loop 종료 후 eval 점수를 Phase 6 결과 보고에 포함한다.
 
