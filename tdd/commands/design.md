@@ -107,6 +107,27 @@ Task(
 - `## Component & Code - Client`
 - `## Verification`
 
+### Phase 3.5: Design Quality Eval (ralph-loop)
+
+`tdd-eval` skill의 `references/design.md` rubric을 참조하여 설계 품질을 자가 평가한다.
+
+```
+Skill(skill: "ralph-loop:ralph-loop", args: "--max-iterations 3 --completion-promise EVAL_PASSED_DESIGN")
+```
+
+각 iteration:
+
+1. **카운팅 채점**:
+   - TC→Usecase 매핑: When → Usecase 테이블 대조
+   - Data Model 커버리지: Given/Then 명사 → 데이터 모델 대조
+   - Usecase-Component 연결: Integration 테이블 대조
+   - Interface Contract: hook/Props 존재 확인
+   - YAGNI: TC 근거가 있는 설계 항목 비율
+2. **LLM 정성 평가**: 설계 응집도 Likert(0-5) — 단일 책임? Container↔Presentational 경계? 데이터 흐름 단방향? 순환 의존?
+3. **eval_result 산출**
+4. `total >= 75` → `<promise>EVAL_PASSED_DESIGN</promise>` 출력
+5. `total < 75` → 누락 보완 (매핑 추가, 불필요 항목 제거 등) → 다음 iteration
+
 ### Phase 4: Linear 문서 업데이트
 
 ⚠️ **로컬 파일 수정 없음** - Linear 문서만 업데이트한다 (Single Source of Truth)
@@ -142,6 +163,14 @@ Client Architecture:
 - Shared: {shared component list}
 
 Optimization: {N}개 항목 적용 (해당 시)
+
+Eval Score: {total}/100 (threshold: 75) {✅ PASS | ⚠️ 미달}
+- TC→Usecase 매핑: {N}/15
+- Data Model 커버리지: {N}/15
+- Usecase-Component 연결: {N}/15
+- Interface Contract: {N}/15
+- YAGNI: {N}/15
+- 설계 응집도: {N}/25 (Likert {N}/5)
 
 Linear Document: {document URL} (Design 섹션 업데이트됨)
 * 로컬 파일 수정 없음 - Linear가 Single Source of Truth

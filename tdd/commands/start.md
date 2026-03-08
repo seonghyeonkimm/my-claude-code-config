@@ -93,6 +93,10 @@ visual_verification:
   browser_check: null             # null | skipped | completed
   browser_iterations: 0           # ralph-loop 반복 횟수
   browser_checklist_passed: null  # "통과/전체" (예: "3/4"), Phase 7.5에서 기록
+eval_scores:
+  plan: null   # { total: 85, passed: true, iterations: 1 }
+  red: null    # { total: 92, passed: true, iterations: 1 }
+  visual: null # { total: 90, passed: true, iterations: 2 }
 created_at: "2026-02-11T10:00:00Z"
 updated_at: "2026-02-11T10:00:00Z"
 ```
@@ -214,21 +218,11 @@ updated_at: "2026-02-11T10:00:00Z"
 
      자유 형식도 괜찮습니다.
 
-     설계 시 고려하면 좋은 포인트:
-     - 모듈 경계: 이 구조에서 한 모듈을 수정할 때 다른 파일까지 함께 고쳐야 하진 않는가?
-     - 추상화 깊이: 모듈이 내부 복잡성을 충분히 숨기는가, 아니면 인터페이스만 복잡한 얕은 모듈인가?
-     - 인지 부하: 이 설계를 이해하려면 한 번에 기억해야 할 개념이 몇 개인가? 몰라도 되는 옵션은 기본값으로 숨겼는가?
-     - 데이터 흐름: 상태가 어디서 생성되고, 어떻게 흘러가며, 누가 변경하는가?
-     - 에러 복구: 에러 발생 시 사용자에게 어떤 피드백을 주고, 상태를 어떻게 안전하게 되돌리는가?
-     - 도메인 순수성: 도메인 로직이 UI/API/외부 의존성 없이 순수 함수로 분리되는가?
-     - 테스트 경계: 테스트가 구현 세부사항이 아닌, 클라이언트에 노출된 공개 인터페이스를 검증하는 구조인가?
-     - 도메인 언어: 코드의 변수명/함수명이 팀의 비즈니스 용어와 일치하는가?
-     - YAGNI: 이 구조에 현재 요구사항이 필요로 하지 않는 확장 포인트나 레이어가 있진 않은가?"
+     설계 시 고려 포인트는 `/tdd:design` 커맨드의 가이드를 참조하세요."
    ```
 
 3. **테스트 케이스 설계** (← `/tdd:spec`의 경량 버전):
-   - Given/When/Then 형식으로 테스트 케이스 목록 작성
-   - 정상 → 에러 → 엣지 케이스 순서로 나열
+   - Given/When/Then 형식으로 테스트 케이스 목록 작성 (`test-case-design` 스킬의 규칙을 따른다)
    - **초안의 핵심 결정을 TC 설계에 반영**
 
 4. **구현 접근 방식** (← `/tdd:design`의 경량 버전):
@@ -285,7 +279,7 @@ updated_at: "2026-02-11T10:00:00Z"
 
 2. agent 결과에서 test_files, branch, commit, failing_tests 수집
 
-3. **세션 상태 업데이트**: phase → "red", branch, test_files, commits.red 기록
+3. **세션 상태 업데이트**: phase → "red", branch, test_files, commits.red, eval_scores.red 기록
 
 ### Phase 4: (Human) Red 리뷰
 
@@ -298,6 +292,13 @@ AskUserQuestion:
   테스트 케이스:
   1. {test name} - {description}
   2. {test name} - {description}
+
+  ## Eval Score: {total}/100 (threshold: 80) {✅ PASS | ⚠️ 미달}
+  - Assertion 구체성: {N}/20
+  - 행동 중심 네이밍: {N}/20
+  - TC 매핑 완전성: {N}/20
+  - 실패 모드: {N}/20
+  - 테스트 의도 읽힘성: {N}/20 (Likert {N}/5)
 
   리뷰 포인트:
   - 테스트 이름이 구현이 아닌 행동을 설명하는가?
@@ -372,7 +373,7 @@ AskUserQuestion:
    - Figma URL 미제공으로 건너뜀 → Phase 7(Refactor)로 이동
    - 완료 → story_files, iterations, match_status, commit 수집
 
-3. **세션 상태 업데이트**: phase → "visual", visual_verification 섹션 업데이트 (story_files, iterations, status), commits.visual 기록
+3. **세션 상태 업데이트**: phase → "visual", visual_verification 섹션 업데이트 (story_files, iterations, status), commits.visual, eval_scores.visual 기록
 
 ### Phase 5.6: (Human) Visual Verification 리뷰
 
@@ -382,6 +383,12 @@ AskUserQuestion:
 
   비교 결과:
   - {component}: Figma 매칭 상태 (✅ 일치 / ⚠️ 잔여 차이: {목록})
+
+  ## Eval Score: {total}/100 (threshold: 80) {✅ PASS | ⚠️ 미달}
+  - 레이아웃: {N}/25 (Likert {N}/5)
+  - 색상: {N}/25 (Likert {N}/5)
+  - 타이포그래피: {N}/25 (Likert {N}/5)
+  - 간격: {N}/25 (Likert {N}/5)
 
   생성된 파일:
   - {story/preview file path}
@@ -530,6 +537,7 @@ AskUserQuestion:
 
 ### Red Phase
 - 테스트 파일: {path}
+- Eval Score: {total}/100
 - 커밋: {commit hash} - test: add failing tests
 
 ### Green Phase
@@ -538,6 +546,7 @@ AskUserQuestion:
 
 ### Visual Verification
 - 상태: {완료/건너뜀/부분완료}
+- Eval Score: {total}/100 (해당 시)
 - Story 파일: {path} (해당 시)
 - ralph-loop: {N}회 반복 (해당 시)
 - 커밋: {commit hash} (해당 시)

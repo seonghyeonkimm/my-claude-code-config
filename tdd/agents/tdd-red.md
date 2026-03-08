@@ -38,27 +38,26 @@ Given/When/Then 테스트 케이스를 실제 테스트 코드로 변환하고, 
 
 ### 테스트 작성 규칙
 
-- `describe`/`it`/`test` 설명은 **한국어**로 작성
-- TC#, TC1 등 번호 접두사를 붙이지 않음 — 행동 설명만 작성
-- UI 렌더링 자체를 검증하는 테스트 지양. **사용자 행동**(클릭, 입력)과 그 **결과**(핸들러 호출, 상태 변경)를 검증하는 통합 테스트 위주
-  - ❌ `it('RecommendCreateAd를 렌더링한다')`
-  - ✅ `it('광고가 없을 때 클릭하면 onCreateAd가 호출된다')`
-- 각 assertion은 테스트 대상의 출력/상태/부수효과를 **직접 검증**
-  - ❌ `expect(true).toBe(false)`, `expect(1).toBe(2)` 등 placeholder
-  - ✅ `expect(result.error).toBeDefined()`, `expect(onSubmit).toHaveBeenCalledWith(...)`
-- mocking은 최소화. 외부 API, 타이머 등 **제어 불가능한 의존성**만 mock
-  - 가능하면 의존성 주입(DI)으로 실제 구현 활용
-  - 예: DB 대신 in-memory repository 주입, API client 대신 fake client 주입
+`test-case-design` 스킬의 assertion 품질 규칙을 따른다. 핵심 원칙:
+- placeholder assertion 금지, 실제 출력/상태/부수효과를 직접 검증
+- 행동 중심 한국어 네이밍, TC# 번호 접두사 금지
 
 4. **테스트 실행 → 실패 확인**:
    - **assertion 실패**여야 함 (import 에러나 syntax 에러가 아님)
    - import 에러 발생 시 → import/mock 설정 수정하여 assertion 실패 상태로 맞춤
 
-5. **커밋**:
-   ```bash
-   git add {test-files}
-   git commit -m "test: add failing tests for {task summary}"
-   ```
+### 3.5. Test Quality Eval (ralph-loop)
+
+`tdd-eval` skill의 `references/red.md` rubric을 참조하여 테스트 품질을 자가 평가한다.
+
+```
+Skill(skill: "ralph-loop:ralph-loop", args: "--max-iterations 3 --completion-promise EVAL_PASSED_RED")
+```
+
+채점 항목: Assertion 구체성, 행동 중심 네이밍, TC 매핑 완전성, 실패 모드(assertion failure vs import/syntax error), 테스트 의도 읽힘성 Likert(0-5).
+`total >= 80` → `<promise>EVAL_PASSED_RED</promise>` 출력. 미달 시 수정 후 다음 iteration.
+
+5. **커밋**: `test: add failing tests for {task summary}`
 
 ## Output
 
@@ -68,3 +67,4 @@ Given/When/Then 테스트 케이스를 실제 테스트 코드로 변환하고, 
 - **branch**: 작업 브랜치명
 - **commit**: 커밋 해시
 - **failing_tests**: 실패한 테스트 수와 목록 (테스트 이름)
+- **eval_score**: {total}/100 (threshold: 80) — Assertion 구체성, 행동 중심 네이밍, TC 매핑, 실패 모드, 테스트 의도 읽힘성

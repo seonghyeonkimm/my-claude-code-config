@@ -77,7 +77,7 @@ ToolSearch로 MCP 도구를 로드한 뒤 컨텍스트를 수집한다.
 4. **Non-Functional Requirements**: 해당되는 경우에만 작성 (Performance, A11y, SEO)
 5. **Functional Requirements (Given/When/Then)**:
    - ⚠️ Entity/Command 헤더 없이 테이블만 작성
-   - 정상 → 에러 → 엣지 케이스 순서로 테스트 케이스 테이블 작성
+   - `test-case-design` 스킬의 규칙을 따른다
 
 ### Phase 3.5: AC ↔ TC 추적성 검증
 
@@ -86,6 +86,19 @@ ToolSearch로 MCP 도구를 로드한 뒤 컨텍스트를 수집한다.
 - 각 AC 항목에 대응하는 TC(Given/When/Then 행)가 **최소 1개** 존재하는지 확인
 - 대응 TC가 없는 AC → TC를 추가하거나 AC를 제거
 - TC가 어떤 AC에도 속하지 않으면 → AC를 추가하거나 해당 TC의 필요성 재검토
+
+### Phase 3.5a: Spec Quality Eval (ralph-loop)
+
+`tdd-eval` skill의 `references/spec.md` rubric을 참조하여 TechSpec 품질을 자가 평가한다.
+
+```
+Skill(skill: "ralph-loop:ralph-loop", args: "--max-iterations 3 --completion-promise EVAL_PASSED_SPEC")
+```
+
+채점 항목: AC Completeness, TC Coverage, Boundary Coverage, TC Specificity, TC 의도 명확성 Likert(0-5).
+`total >= 80` → `<promise>EVAL_PASSED_SPEC</promise>` 출력. 미달 시 수정 후 다음 iteration.
+
+ralph-loop 종료 후 eval 점수를 Phase 6 결과 보고에 포함한다.
 
 ### Phase 4: Linear 문서 생성
 
@@ -138,6 +151,13 @@ Metadata: .claude/docs/{project-name}/meta.yaml
 - Acceptance Criteria ({N}개)
 - Non-Functional Requirements
 - Functional Requirements ({N}개 테스트 케이스)
+
+Eval Score: {total}/100 (threshold: 80) {✅ PASS | ⚠️ 미달}
+- AC Completeness: {N}/20
+- TC Coverage: {N}/20
+- Boundary Coverage: {N}/20
+- TC Specificity: {N}/20
+- TC 의도 명확성: {N}/20 (Likert {N}/5)
 
 ⚠️ TechSpec 전문은 Linear 문서에만 저장됩니다 (Single Source of Truth)
 
