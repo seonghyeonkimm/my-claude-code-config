@@ -120,10 +120,18 @@ AskUserQuestion:
 > 매 iteration마다 `playwright-cli screenshot`으로 실제 화면을 캡처하고, 시각적/인터랙션 동작을 확인해야 한다.
 > 코드 레벨 검증이나 테스트 실행만으로 QA_PASSED를 출력하지 않는다.
 
-#### b. 결과 판정
+#### b. 결과 판정 + Eval Scoring
 
-- 모든 기준 통과 → `<promise>QA_PASSED</promise>` 출력하여 ralph-loop 종료
-- 실패 항목 있지만 수정 가능 → 수정 후 다음 iteration
+`tdd-eval` skill의 `references/integrate.md` rubric을 참조하여 eval_result를 산출한다:
+
+- AC 기준 통과율: `30 × (통과 AC / 전체 AC)`
+- TC 시나리오 통과율: `30 × (통과 TC / 전체 TC)`
+- 검증 깊이: `4 × Likert(0-5)` — 코드 트레이싱뿐 아니라 실제 테스트 실행·브라우저 확인까지 했는가?
+- 수정 안전성: `20 × (수정 후 테스트 통과 / 수정 후 전체 테스트)` (수정 없으면 20)
+
+**판정:**
+- total >= 80 AND 모든 AC/TC 통과 → `<promise>QA_PASSED</promise>` 출력하여 ralph-loop 종료
+- total < 80 → 낮은 dimension 집중 개선 후 다음 iteration
 - 실패 항목이 새 구현이 필요한 수준 → MISSING으로 기록, Follow-up Action으로 보고
 
 #### c. 수정 가능 범위 (작은 누락/연결 문제)
@@ -174,6 +182,12 @@ git commit -m "fix: integration QA - {수정 요약}"
 ### Follow-up Issues (새 구현 필요)
 1. {구체적 액션 설명} — 관련: {AC/TC 참조}
 
+### Eval Score: {total}/100 (threshold: 80)
+- AC 기준 통과율: {N}/30
+- TC 시나리오 통과율: {N}/30
+- 검증 깊이: {N}/20 (Likert {N}/5)
+- 수정 안전성: {N}/20
+
 ### Summary
 - 평가기준: {N}개
 - 통과: {N}개
@@ -184,5 +198,6 @@ git commit -m "fix: integration QA - {수정 요약}"
 Output 필드:
 
 - **report**: 위 QA Report 전문
+- **eval_score**: {total}/100 (threshold: 80) — AC 통과율, TC 통과율, 검증 깊이, 수정 안전성
 - **follow_up_actions**: 수정 불가 항목 목록 (없으면 빈 배열)
 - **commit**: 커밋 해시 (수정 없었으면 null)

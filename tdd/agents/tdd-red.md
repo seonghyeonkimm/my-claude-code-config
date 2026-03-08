@@ -54,6 +54,26 @@ Given/When/Then 테스트 케이스를 실제 테스트 코드로 변환하고, 
    - **assertion 실패**여야 함 (import 에러나 syntax 에러가 아님)
    - import 에러 발생 시 → import/mock 설정 수정하여 assertion 실패 상태로 맞춤
 
+### 3.5. Test Quality Eval (ralph-loop)
+
+`tdd-eval` skill의 `references/red.md` rubric을 참조하여 테스트 품질을 자가 평가한다.
+
+```
+Skill(skill: "ralph-loop:ralph-loop", args: "--max-iterations 3 --completion-promise EVAL_PASSED_RED")
+```
+
+각 iteration:
+
+1. **카운팅 채점**:
+   - Assertion 구체성: placeholder 패턴 (`expect(true).toBe(false)`, `TODO` 등) grep
+   - 행동 중심 네이밍: anti-pattern (`test 1`, `should work`, `렌더링한다` 등) grep
+   - TC 매핑 완전성: 실제 테스트 수 / 입력 TC 수
+   - 실패 모드: assertion failure면 20점, import/syntax error면 0점
+2. **LLM 정성 평가**: 테스트 의도 읽힘성 Likert(0-5) — "무엇을 보호하는 테스트인지" 바로 이해되는가?
+3. **eval_result 산출**
+4. `total >= 80` → `<promise>EVAL_PASSED_RED</promise>` 출력
+5. `total < 80` → 테스트 코드 수정 (assertion 구체화, 네이밍 개선, 누락 TC 추가) → 다음 iteration
+
 5. **커밋**:
    ```bash
    git add {test-files}
@@ -68,3 +88,4 @@ Given/When/Then 테스트 케이스를 실제 테스트 코드로 변환하고, 
 - **branch**: 작업 브랜치명
 - **commit**: 커밋 해시
 - **failing_tests**: 실패한 테스트 수와 목록 (테스트 이름)
+- **eval_score**: {total}/100 (threshold: 80) — Assertion 구체성, 행동 중심 네이밍, TC 매핑, 실패 모드, 테스트 의도 읽힘성

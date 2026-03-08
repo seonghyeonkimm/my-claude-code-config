@@ -139,23 +139,25 @@ b. **구현 스크린샷 캡처**:
    ```
    playwright-cli로 캡처한 파일을 Read로 열어 LLM 멀티모달로 확인한다.
 
-c. **Figma vs 구현 비교 분석**:
-   위 두 이미지를 LLM 멀티모달로 비교하여 차이점을 항목별로 분석한다:
-   - 레이아웃 (배치, 정렬, 크기)
-   - 색상 (배경, 텍스트, 보더)
-   - 타이포그래피 (폰트, 사이즈, weight)
-   - 간격 (padding, margin, gap)
+c. **Figma vs 구현 비교 분석 + Eval Scoring**:
+   위 두 이미지를 LLM 멀티모달로 비교하고, `tdd-eval` skill의 `references/visual.md` rubric을 참조하여 4개 dimension을 Likert(0-5) 채점한다:
+   - 레이아웃 (배치, 정렬, 크기): Likert {0-5}
+   - 색상 (배경, 텍스트, 보더): Likert {0-5}
+   - 타이포그래피 (폰트, 사이즈, weight): Likert {0-5}
+   - 간격 (padding, margin, gap): Likert {0-5}
 
-d. **차이점이 없으면** → `<promise>VISUAL_MATCH</promise>` 출력하여 ralph-loop 종료
+   eval_result 산출: `total = 각 dimension의 5 × Likert` 합산 (만점 100)
 
-e. **차이점이 있으면**:
-   1. CSS/스타일, 레이아웃, 디자인 토큰 수정
+d. **total >= 80 (모든 dimension Likert 4+)** → `<promise>VISUAL_MATCH</promise>` 출력하여 ralph-loop 종료
+
+e. **total < 80 (Likert 3 이하 dimension 존재)**:
+   1. Likert 3 이하인 dimension만 집중 수정 (CSS/스타일, 레이아웃, 디자인 토큰)
    2. 테스트 실행 → Green 유지 확인 (깨지면 수정 revert 후 다른 방법 시도)
    3. 다음 iteration으로 진행
 
 **수렴 조건:**
 - `<promise>VISUAL_MATCH</promise>` 출력 시 ralph-loop 자동 종료
-- 최대 5회 반복 도달 시 자동 종료, 잔여 차이 목록과 함께 보고
+- 최대 5회 반복 도달 시 자동 종료, 잔여 차이 목록 + eval 점수와 함께 보고
 
 ### 4. 커밋
 
@@ -171,4 +173,5 @@ git commit -m "style: visual verification - match Figma design for {component}"
 - **story_files**: 생성된 story/preview 파일 경로
 - **iterations**: ralph-loop 반복 횟수
 - **match_status**: 매칭 상태 (일치 / 잔여 차이 목록)
+- **eval_score**: {total}/100 (threshold: 80) — 레이아웃, 색상, 타이포그래피, 간격 각 Likert(0-5)
 - **commit**: 커밋 해시 (건너뜀 시 null)

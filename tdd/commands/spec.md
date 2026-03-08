@@ -87,6 +87,28 @@ ToolSearch로 MCP 도구를 로드한 뒤 컨텍스트를 수집한다.
 - 대응 TC가 없는 AC → TC를 추가하거나 AC를 제거
 - TC가 어떤 AC에도 속하지 않으면 → AC를 추가하거나 해당 TC의 필요성 재검토
 
+### Phase 3.5a: Spec Quality Eval (ralph-loop)
+
+`tdd-eval` skill의 `references/spec.md` rubric을 참조하여 TechSpec 품질을 자가 평가한다.
+
+```
+Skill(skill: "ralph-loop:ralph-loop", args: "--max-iterations 3 --completion-promise EVAL_PASSED_SPEC")
+```
+
+각 iteration:
+
+1. **카운팅 채점**:
+   - AC Completeness: Solution 항목 → AC 텍스트 매칭
+   - TC Coverage: AC별 Given/When/Then 행 존재 여부
+   - Boundary Coverage: When 기준 그룹핑 → 정상/에러/엣지 타입 태깅
+   - TC Specificity: vague 패턴 ("표시된다", "보인다" 등 구체적 값 없는 Then) grep
+2. **LLM 정성 평가**: TC 의도 명확성 Likert(0-5) — 각 TC가 하나의 행동만 검증하는가?
+3. **eval_result 산출** (YAML 형식으로 내부 기록)
+4. `total >= 80` → `<promise>EVAL_PASSED_SPEC</promise>` 출력
+5. `total < 80` → `failing_dimensions.gap` 기반으로 TechSpec 수정 → 다음 iteration
+
+ralph-loop 종료 후 eval 점수를 Phase 6 결과 보고에 포함한다.
+
 ### Phase 4: Linear 문서 생성
 
 ```
@@ -138,6 +160,13 @@ Metadata: .claude/docs/{project-name}/meta.yaml
 - Acceptance Criteria ({N}개)
 - Non-Functional Requirements
 - Functional Requirements ({N}개 테스트 케이스)
+
+Eval Score: {total}/100 (threshold: 80) {✅ PASS | ⚠️ 미달}
+- AC Completeness: {N}/20
+- TC Coverage: {N}/20
+- Boundary Coverage: {N}/20
+- TC Specificity: {N}/20
+- TC 의도 명확성: {N}/20 (Likert {N}/5)
 
 ⚠️ TechSpec 전문은 Linear 문서에만 저장됩니다 (Single Source of Truth)
 

@@ -78,6 +78,25 @@ Task(
 
 **agent 반환 결과**: Blocker/Related issue 목록 (title, description, priority, package 매핑, TC 커버리지)
 
+### Phase 2.5: Issue Quality Eval (ralph-loop)
+
+`tdd-eval` skill의 `references/issues.md` rubric을 참조하여 이슈 분류 품질을 자가 평가한다.
+
+```
+Skill(skill: "ralph-loop:ralph-loop", args: "--max-iterations 3 --completion-promise EVAL_PASSED_ISSUES")
+```
+
+각 iteration:
+
+1. **카운팅 채점**:
+   - TC 커버리지: 이슈에 할당된 TC / 전체 TC
+   - 의존성 정합성: 올바른 Blocker / 전체 Blocker (순환 없음, 논리적 순서)
+   - 스코프 명확성: package_name, target_directory가 있는 이슈 비율
+   - 양방향 매핑: TC→이슈, 이슈→TC 모두 연결 (orphan 검출)
+2. **eval_result 산출**
+3. `total >= 80` → `<promise>EVAL_PASSED_ISSUES</promise>` 출력
+4. `total < 80` → 누락 보완 (미할당 TC 배정, 메타데이터 추가, orphan 제거) → 다음 iteration
+
 ### Phase 3: 사용자 확인
 
 분류 결과를 AskUserQuestion으로 제시하여 확인받는다:

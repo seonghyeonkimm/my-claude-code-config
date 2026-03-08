@@ -93,6 +93,10 @@ visual_verification:
   browser_check: null             # null | skipped | completed
   browser_iterations: 0           # ralph-loop 반복 횟수
   browser_checklist_passed: null  # "통과/전체" (예: "3/4"), Phase 7.5에서 기록
+eval_scores:
+  plan: null   # { total: 85, passed: true, iterations: 1 }
+  red: null    # { total: 92, passed: true, iterations: 1 }
+  visual: null # { total: 90, passed: true, iterations: 2 }
 created_at: "2026-02-11T10:00:00Z"
 updated_at: "2026-02-11T10:00:00Z"
 ```
@@ -285,7 +289,7 @@ updated_at: "2026-02-11T10:00:00Z"
 
 2. agent 결과에서 test_files, branch, commit, failing_tests 수집
 
-3. **세션 상태 업데이트**: phase → "red", branch, test_files, commits.red 기록
+3. **세션 상태 업데이트**: phase → "red", branch, test_files, commits.red, eval_scores.red 기록
 
 ### Phase 4: (Human) Red 리뷰
 
@@ -298,6 +302,13 @@ AskUserQuestion:
   테스트 케이스:
   1. {test name} - {description}
   2. {test name} - {description}
+
+  ## Eval Score: {total}/100 (threshold: 80) {✅ PASS | ⚠️ 미달}
+  - Assertion 구체성: {N}/20
+  - 행동 중심 네이밍: {N}/20
+  - TC 매핑 완전성: {N}/20
+  - 실패 모드: {N}/20
+  - 테스트 의도 읽힘성: {N}/20 (Likert {N}/5)
 
   리뷰 포인트:
   - 테스트 이름이 구현이 아닌 행동을 설명하는가?
@@ -372,7 +383,7 @@ AskUserQuestion:
    - Figma URL 미제공으로 건너뜀 → Phase 7(Refactor)로 이동
    - 완료 → story_files, iterations, match_status, commit 수집
 
-3. **세션 상태 업데이트**: phase → "visual", visual_verification 섹션 업데이트 (story_files, iterations, status), commits.visual 기록
+3. **세션 상태 업데이트**: phase → "visual", visual_verification 섹션 업데이트 (story_files, iterations, status), commits.visual, eval_scores.visual 기록
 
 ### Phase 5.6: (Human) Visual Verification 리뷰
 
@@ -382,6 +393,12 @@ AskUserQuestion:
 
   비교 결과:
   - {component}: Figma 매칭 상태 (✅ 일치 / ⚠️ 잔여 차이: {목록})
+
+  ## Eval Score: {total}/100 (threshold: 80) {✅ PASS | ⚠️ 미달}
+  - 레이아웃: {N}/25 (Likert {N}/5)
+  - 색상: {N}/25 (Likert {N}/5)
+  - 타이포그래피: {N}/25 (Likert {N}/5)
+  - 간격: {N}/25 (Likert {N}/5)
 
   생성된 파일:
   - {story/preview file path}
@@ -530,6 +547,7 @@ AskUserQuestion:
 
 ### Red Phase
 - 테스트 파일: {path}
+- Eval Score: {total}/100
 - 커밋: {commit hash} - test: add failing tests
 
 ### Green Phase
@@ -538,6 +556,7 @@ AskUserQuestion:
 
 ### Visual Verification
 - 상태: {완료/건너뜀/부분완료}
+- Eval Score: {total}/100 (해당 시)
 - Story 파일: {path} (해당 시)
 - ralph-loop: {N}회 반복 (해당 시)
 - 커밋: {commit hash} (해당 시)
