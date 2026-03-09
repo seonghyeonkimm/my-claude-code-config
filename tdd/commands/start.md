@@ -59,11 +59,22 @@ heavyweight flow(`/tdd:spec` → `/tdd:design` → `/tdd:issues` → `/tdd:imple
 ```yaml
 # .claude/docs/{project_name}/tdd-session.yaml
 task: "버그 수정: 장바구니 수량 음수 허용됨"
+task_source: "text"  # text | linear | github
+task_url: null  # Linear/GitHub URL (해당 시)
 branch: "fix/cart-negative-quantity"
 pr:
   number: 42
   url: "https://github.com/org/repo/pull/42"
 phase: "plan"  # plan | red | green | visual | refactor | done
+project_context:
+  test_framework: "vitest"  # vitest | jest | pytest | go_test
+  linter: "biome"  # biome | eslint | none
+  typechecker: "tsc"  # tsc | none
+  existing_test_patterns:
+    representative_file: "src/domain/cart.test.ts"
+    import_pattern: "import { describe, it, expect } from 'vitest'"
+    naming_convention: "Korean behavior descriptions"
+    structure_summary: "describe blocks with nested it blocks"
 design:
   human_draft: |
     ### 핵심 결정
@@ -138,73 +149,66 @@ updated_at: "2026-02-11T10:00:00Z"
 
 3. **파일이 없으면** → Phase 1로 진행
 
-### Phase 1: 입력 수집 및 컨텍스트 파악
+### Phase 1: 입력 수집 및 컨텍스트 파악 (subagent 위임)
 
-1. **입력 파싱**: `$ARGUMENTS.task` 분석
+> **Context 절약**: 모든 Glob/Grep/Read 작업을 `tdd-scout` subagent에 위임하여 orchestrator context를 보존한다.
 
-   | 입력 타입 | 감지 방법 | 처리 |
-   |-----------|-----------|------|
-   | 없음 | `$ARGUMENTS.task` 비어있음 | AskUserQuestion: "어떤 작업을 TDD로 진행할까요?" |
-   | 일반 텍스트 | URL 패턴 아님 | 그대로 작업 설명으로 사용 |
-   | Linear URL | `linear.app` 포함 | ToolSearch로 Linear MCP fetch (best-effort) |
-   | GitHub URL | `github.com/.*/issues/` 패턴 | `gh issue view {url} --json title,body` |
+1. **입력 확인**: `$ARGUMENTS.task`가 비어있으면 AskUserQuestion: "어떤 작업을 TDD로 진행할까요?"
 
-   - Linear/GitHub URL fetch 실패 시 → AskUserQuestion으로 텍스트 입력 요청
+2. **`tdd-scout` agent에 위임**:
 
-2. **프로젝트 컨텍스트 수집**:
-
-   **테스트 프레임워크 감지:**
    ```
-   Glob("vitest.config.*") → vitest
-   Glob("jest.config.*") 또는 package.json의 jest 섹션 → jest
-   Glob("pytest.ini") 또는 Glob("pyproject.toml") → pytest
-   Glob("go.mod") → go test
-   ```
-   - 감지 실패 시 AskUserQuestion으로 질문
-
-   **기존 테스트 패턴 파악:**
-   - Grep로 `describe(`, `it(`, `test(` 등 검색하여 테스트 파일 위치, 네이밍 컨벤션 파악
-   - 대표 테스트 파일 1-2개 Read하여 import 패턴, 구조 확인
-
-   **린터/타입체커 감지:**
-   ```
-   Glob("biome.json") → biome
-   Glob(".eslintrc.*") 또는 Glob("eslint.config.*") → eslint
-   Glob("tsconfig.json") → tsc
+   Task(subagent_type: "tdd-scout", prompt: "
+     ## Context
+     - task: {$ARGUMENTS.task 또는 사용자 입력}
+   ")
    ```
 
-   **Figma URL 확인:**
-   - 작업 설명에 Figma URL (`figma.com` 포함)이 포함되어 있으면 추출하여 저장
-   - 없으면 AskUserQuestion: "Figma 디자인 URL을 입력하세요. (Visual Verification에 사용됩니다. UI 작업이 아닌 경우 '없음'이라고 답해주세요)"
+3. **scout 결과 처리**:
+   - `test_framework: "unknown"`이면 AskUserQuestion으로 프레임워크 질문
+   - `scope_assessment: "suggest_heavyweight"`이면 AskUserQuestion으로 heavyweight flow 추천
+   - `figma_url`이 null이면 AskUserQuestion: "Figma 디자인 URL을 입력하세요. (Visual Verification에 사용됩니다. UI 작업이 아닌 경우 '없음'이라고 답해주세요)"
    - '없음' 응답 시 `null`로 저장 (Visual Verification 비활성화)
-
-3. **스코프 판단**: 10개 이상의 테스트 케이스가 필요하거나 다수 모듈에 걸치는 작업이면 AskUserQuestion으로 heavyweight flow 추천
 
 4. **세션 상태 파일 초기 생성**:
    - project_name 결정 (태스크에서 키워드 추출, kebab-case)
    - `.claude/docs/{project_name}/` 디렉토리가 없으면 생성
    - `.claude/docs/{project_name}/tdd-session.yaml` 작성 (phase: "plan")
+   - scout 결과(test_framework, linter, typechecker, existing_test_patterns)를 세션 상태에 기록
 
-### Phase 2: 분석 & 설계
+### Phase 2: 분석 & 설계 (subagent 위임)
+
+> **Context 절약**: 코드 분석과 TC 설계를 `tdd-planner` subagent에 위임한다. Orchestrator는 사용자 상호작용(설계 초안 수집, 설계 리뷰)만 담당한다.
 
 `/tdd:spec`의 테스트 케이스 설계 + `/tdd:design`의 구현 방향을 경량화하여 하나의 phase로 합침.
 
-1. **문제 분석**:
-   - 버그인 경우: 원인 파악, 재현 조건 정리
-   - 기능 추가인 경우: 요구사항 정리, 기존 코드와의 관계 파악
-   - 영향 범위 파악 (어떤 파일/모듈에 영향)
-   - 관련 코드 읽기 (Grep/Read로 현재 구현 확인)
+#### Phase 2a: 문제 분석 (subagent)
 
-2. **설계 초안 수집 (필수)**:
+1. **`tdd-planner` agent에 위임 (analyze 모드)**:
 
-   문제 분석 결과를 공유한 뒤 인간의 설계 초안을 요청한다. 초안이 제공될 때까지 TC 설계로 진행하지 않는다.
+   ```
+   Task(subagent_type: "tdd-planner", prompt: "
+     ## Context
+     - mode: analyze
+     - task_description: {scout.task_description}
+     - test_framework: {scout.test_framework}
+     - existing_test_patterns: {scout.existing_test_patterns}
+   ")
+   ```
+
+2. **AskUserQuestion으로 설계 초안 수집 (필수)**:
+
+   planner의 문제 분석 결과를 공유한 뒤 인간의 설계 초안을 요청한다. 초안이 제공될 때까지 Phase 2b로 진행하지 않는다.
 
    ```
    AskUserQuestion:
      question: "문제를 분석했습니다.
 
      ## 문제 분석
-     {문제 요약}
+     - 유형: {planner.problem_analysis.type}
+     - 요약: {planner.problem_analysis.summary}
+     - 영향 파일: {planner.problem_analysis.affected_files}
+     - 원인/요구사항: {planner.problem_analysis.root_cause 또는 requirements}
 
      구현 방향에 대한 설계 초안을 공유해주세요.
      (컴포넌트 구조, 데이터 흐름, 기술 선택 등)
@@ -221,42 +225,46 @@ updated_at: "2026-02-11T10:00:00Z"
      설계 시 고려 포인트는 `/tdd:design` 커맨드의 가이드를 참조하세요."
    ```
 
-3. **테스트 케이스 설계** (← `/tdd:spec`의 경량 버전):
-   - Given/When/Then 형식으로 테스트 케이스 목록 작성 (`test-case-design` 스킬의 규칙을 따른다)
-   - **초안의 핵심 결정을 TC 설계에 반영**
+#### Phase 2b: TC 설계 + 접근법 (subagent)
 
-4. **구현 접근 방식** (← `/tdd:design`의 경량 버전):
-   - 어떤 파일을 수정/생성할지
-   - 어떤 함수/컴포넌트를 변경할지
-   - 주의할 점 (부작용, 호환성 등)
-   - **초안의 기술 결정을 구현 접근에 반영**
-   - **초안과 TC 분석이 충돌하면 충돌 사항을 기록**
+3. **`tdd-planner` agent에 위임 (design 모드)**:
 
-5. **세션 상태 업데이트**: design 섹션에 테스트 케이스 & 구현 접근 & 초안 반영 기록
+   ```
+   Task(subagent_type: "tdd-planner", prompt: "
+     ## Context
+     - mode: design
+     - task_description: {scout.task_description}
+     - problem_analysis: {planner_analyze 결과의 problem_analysis}
+     - human_draft: {사용자가 제공한 설계 초안 전문}
+     - test_framework: {scout.test_framework}
+     - existing_test_patterns: {scout.existing_test_patterns}
+     - figma_url: {세션의 figma_url, null이면 생략}
+   ")
+   ```
 
-6. **AskUserQuestion으로 설계 리뷰 요청**:
+4. **세션 상태 업데이트**: design 섹션에 테스트 케이스 & 구현 접근 & 초안 반영 기록
+
+5. **AskUserQuestion으로 설계 리뷰 요청**:
    ```
    question: "분석 & 설계가 완료되었습니다.
 
    ## 초안 반영
-   - 반영: {반영된 결정}
-   - 충돌: {충돌 사항 + 권장안} (없으면 생략)
+   - 반영: {planner.draft_reflection.adopted}
+   - 충돌: {planner.draft_reflection.conflicts} (없으면 생략)
 
    ## 열린 질문 → 제안
-   - Q: {인간의 질문} → A: {제안 + 근거} (없으면 생략)
+   {planner.draft_reflection.open_questions_resolved 각 항목} (없으면 생략)
 
    ## 테스트 케이스
-   1. Given {조건} / When {행동} / Then {결과}
-   2. Given {조건} / When {행동} / Then {결과}
+   {planner.test_cases 각 항목을 번호 목록으로}
 
    ## 구현 접근
-   - {file}: {변경 내용}
-   - {file}: {변경 내용}
+   {planner.approach 각 항목}
 
    선택: 진행 / 수정 요청 / 중단"
    ```
 
-   수정 요청 시 → 설계 수정 후 상태 파일 업데이트 → 다시 리뷰 요청 (루프)
+   수정 요청 시 → Phase 2b 재실행 (tdd-planner design 모드 재호출) → 상태 파일 업데이트 → 다시 리뷰 요청 (루프)
 
 ### Phase 3: Red - 실패하는 테스트 작성
 
