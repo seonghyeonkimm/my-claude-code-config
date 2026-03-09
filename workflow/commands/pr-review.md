@@ -74,11 +74,13 @@ allowed-tools:
 
 ### Step 6: 코멘트 Resolve
 
-반영 완료된 코멘트들을 resolve 처리:
-1. 각 반영된 review comment의 thread를 `gh api` 를 사용하여 resolve
+**반영/미반영 여부와 무관하게** 모든 처리 완료된 코멘트를 resolve 처리:
+1. actionable 코멘트: 코드 반영 완료 후 resolve
+2. non-actionable 코멘트: 미반영 사유를 확인한 뒤 resolve
+3. 각 review comment의 thread를 `gh api` 를 사용하여 resolve
    - GraphQL mutation 사용: `resolveReviewThread`
    - `gh api graphql -f query='mutation { resolveReviewThread(input: { threadId: "..." }) { thread { isResolved } } }'`
-2. resolve할 thread ID는 `gh api graphql` 쿼리로 PR의 review threads를 조회하여 획득
+4. resolve할 thread ID는 `gh api graphql` 쿼리로 PR의 review threads를 조회하여 획득
 
 ### Step 7: 완료 보고
 
@@ -95,7 +97,9 @@ allowed-tools:
 1. {파일}:{라인} - {변경 요약}
 ...
 
-### 미반영 코멘트 (필요시 수동 확인)
-1. @{reviewer} - "{코멘트 요약}" - 사유: {미반영 이유}
+### 미반영 코멘트 (resolved 처리됨, 사유 확인 필요)
+1. @{reviewer} - {파일}:{라인} - "{코멘트 요약}"
+   - 미반영 사유: {구체적 이유}
+   - 원문: {코멘트 원문 요약}
 ...
 ```
