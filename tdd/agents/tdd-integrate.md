@@ -94,6 +94,7 @@ ralph-loop 실행 실패 시 AskUserQuestion으로 재시도/건너뛰기 선택
 1. **코드 레벨 검증**: Grep/Read로 데이터 흐름 추적, import 연결, 조건 분기 확인
 2. **테스트 실행**: 기존 테스트 + 필요 시 통합 테스트 추가
 3. **브라우저 검증**: playwright-cli로 실제 동작 확인
+   - **Fixture URL 활용** (Route Pages): `_fixtures/` 디렉토리가 존재하면, `url-fixture-pattern` skill을 참조하여 `?fixture={scenario}` URL로 특정 Given 상태를 재현. "빈 장바구니", "에러 상태", "대량 데이터" 등 재현이 어려운 시나리오를 결정적(deterministic)으로 검증 가능.
 4. **로그/디버깅**: console.log + 에러 메시지 분석
 5. **코드 트레이싱**: 함수 호출 체인 추적
 
