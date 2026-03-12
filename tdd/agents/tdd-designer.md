@@ -153,13 +153,34 @@ template.md의 구조를 따라 설계한다.
 
 template.md의 Optimization Checklist 테이블 구조를 따른다.
 
+## Phase 2.7: Fixture Map (Route Pages only)
+
+> **조건**: Component Tree에 Route Page Container가 포함되어 있고,
+> 해당 Container가 Server-origin 데이터를 조회하여 하위 Presentational에 전달하는 구조일 때만 실행.
+> Presentational 컴포넌트만 다루는 설계, 또는 Route Page가 없는 설계에서는 건너뛴다.
+
+`url-fixture-pattern` skill을 Glob으로 검색하여 참조한다: `Glob("**/url-fixture-pattern/SKILL.md")`
+
+TC의 Given 조건에서 fixture 시나리오를 도출:
+
+| TC# | Given 조건 | Fixture Name | Container | 필요 데이터 요약 |
+|-----|-----------|--------------|-----------|----------------|
+
+**도출 규칙:**
+- 같은 Given 조건을 공유하는 TC들은 하나의 fixture로 통합
+- fixture 데이터는 Phase 1의 데이터 모델 interface를 따른다
+- fixture name은 Given 조건의 핵심을 snake_case로 변환
+- **YAGNI**: TC Given에 없는 시나리오 fixture 추가 금지
+
+이 테이블을 "Component & Visual Contract" 섹션 하단에 "### Fixture Map" 서브섹션으로 추가한다.
+
 ## Phase 3: Verification 섹션
 
 template.md의 Verification 구조를 따른다. Integration Test 최우선. UI 렌더링 자체보다 사용자 행동과 그 결과를 검증.
 
 ## Output Contract
 
-설계 결과를 마크다운으로 반환한다. 필수 섹션: `## Design` (데이터 모델, Usecase, Interface Contract, Component & Visual Contract, Usecase-Component Integration, Optimization Checklist), `## Component & Code - Client`, `## Verification`. 정확한 섹션 구조는 template.md 참조.
+설계 결과를 마크다운으로 반환한다. 필수 섹션: `## Design` (데이터 모델, Usecase, Interface Contract, Component & Visual Contract, (Route Page인 경우) Fixture Map, Usecase-Component Integration, Optimization Checklist), `## Component & Code - Client`, `## Verification`. 정확한 섹션 구조는 template.md 참조.
 
 마지막에 `## 초안 반영 결과` 섹션을 추가한다:
 
